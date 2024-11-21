@@ -24,3 +24,7 @@
 * `./manage.py runserver` to run development server at default port :8000
 * Open in your browser URL = `http://localhost:8000` login with the superuser account you just created (as superuser you may access django admin at `http://localhost:8000/admin/`)
 * To initialized or adding Book data into the database, use quick actions **Initialize Books** use book title keywords such as "python django" to start adding book collection to the database
+
+## Testing
+* `coverage run manage.py test rentals`
+* `coverage report`
