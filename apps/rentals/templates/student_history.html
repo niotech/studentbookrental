@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Rental History - Student Book Rental System{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold mb-6">Rental History for {{ student.username }}</h1>
+
+{% if rentals %}
+<table class="w-full bg-white shadow-md rounded">
+    <thead>
+        <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+            <th class="py-3 px-6 text-left">Book</th>
+            <th class="py-3 px-6 text-left">Rental Date</th>
+            <th class="py-3 px-6 text-left">Return Date</th>
+            <th class="py-3 px-6 text-right">Fee</th>
+        </tr>
+    </thead>
+    <tbody class="text-gray-600 text-sm font-light">
+        {% for rental in rentals %}
+        <tr class="border-b border-gray-200 hover:bg-gray-100">
+            <td class="py-3 px-6 text-left whitespace-nowrap">
+                {{ rental.book.title }}
+            </td>
+            <td class="py-3 px-6 text-left">
+                {{ rental.rental_date|date:"F d, Y" }}
+            </td>
+            <td class="py-3 px-6 text-left">
+                {% if rental.return_date %}
+                {{ rental.return_date|date:"F d, Y" }}
+                {% else %}
+                Not returned
+                {% endif %}
+            </td>
+            <td class="py-3 px-6 text-right">
+                ${{ rental.calculate_fee|floatformat:2 }}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>This student has no rental history.</p>
+{% endif %}
+
+<a href="{% url 'home' %}"
+    class="mt-4 inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+    Back to Dashboard
+</a>
+{% endblock %}

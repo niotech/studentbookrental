@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load rental_filters %}
+
+{% block title %}Admin Home - Student Book Rental System{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold mb-6">Admin Dashboard - Student Book Rental System</h1>
+
+{% if user.is_authenticated and user.is_staff %}
+<div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+    <h2 class="text-2xl font-bold mb-4">All Active Rentals</h2>
+    {% if rentals %}
+    <ul class="divide-y divide-gray-200">
+        {% for rental in rentals %}
+        <li class="py-4">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-semibold">{{ rental.book.title }}</h3>
+                    <p class="text-sm text-gray-600">Student: {{ rental.user.username }}</p>
+                    <p class="text-sm text-gray-600">Rented on: {{ rental.rental_date|date:"F d, Y" }}</p>
+                    <p class="text-sm text-gray-600">
+                        Rental duration: {{ rental.rental_duration }} days
+                        {% if rental.is_overdue %}
+                        <span class="text-red-500 ml-2">Overdue</span>
+                        {% endif %}
+                    </p>
+                    <p class="text-sm text-gray-600">Book Pages: {{ rental.book.page_count }}</p>
+                    <p class="text-sm text-gray-600">Base Rental Fee: ${{ rental.book.page_count|default:0|divided_by:100|floatformat:2 }}</p>
+                    <p class="text-sm text-gray-600">Current Total Fee: ${{ rental.calculate_fee|floatformat:2 }}</p>
+                </div>
+                <div class="space-x-2">
+                    <form method="post" action="{% url 'extend_rental' %}" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="rental_id" value="{{ rental.id }}">
+                        <button type="submit"
+                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                            Extend Rental
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'return_rental' %}" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="rental_id" value="{{ rental.id }}">
+                        <button type="submit"
+                            class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                            Return Book
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>There are no active rentals at the moment.</p>
+    {% endif %}
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+    <div class="bg-white shadow-md rounded px-8 pt-6 pb-8">
+        <h2 class="text-2xl font-bold mb-4">Quick Actions</h2>
+        <div class="space-y-4">
+            <a href="{% url 'new_rental' %}"
+                class="block w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline text-center">
+                Create New Rental
+            </a>
+            <a href="{% url 'init_books' %}"
+                class="block w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline text-center">
+                Initialize Books
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md rounded px-8 pt-6 pb-8">
+        <h2 class="text-2xl font-bold mb-4">Student Rental History</h2>
+        <form method="get" action="{% url 'student_history' %}" class="mb-4">
+            <div class="flex items-center">
+                <select name="student" id="student_history"
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mr-2">
+                    {% for student in students %}
+                    <option value="{{ student.id }}">{{ student.username }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit"
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    View History
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% else %}
+<p class="text-red-500 font-bold">Access Denied. This page is only accessible to admin users.</p>
+{% endif %}
+{% endblock %}
